@@ -19,11 +19,13 @@ def argument_parse():
         type=str,
         help="output file path, default to standard output if omitted",
     )
+    parser.add_argument("--local", action='store_true',
+                        help="Make emojis local-only")
 
     return parser.parse_args()
 
 
-def build_meta(files: List[str], category: Optional[str]) -> dict:
+def build_meta(files: List[str], category: Optional[str], localonly: bool = False) -> dict:
     # TODO: filename verification (/^[a-zA-Z0-9_]+?([a-zA-Z0-9\.]+)?$/)
     # TODO: emojiname verification (/^[a-zA-Z0-9_]+$/)
     return {
@@ -37,7 +39,7 @@ def build_meta(files: List[str], category: Optional[str]) -> dict:
                     "category": category,
                     "aliases": [""],
                     "isSensitive": False,
-                    "localOnly": False
+                    "localOnly": localonly
                     # 'license': "",  # nullable
                 },
             }
@@ -58,7 +60,7 @@ def main():
         print("Error: The path not found -", path)
         return
 
-    meta = build_meta(files, args.category)
+    meta = build_meta(files, args.category, args.local)
     if args.output:
         with open(args.output, "w") as f:
             json.dump(meta, f)
