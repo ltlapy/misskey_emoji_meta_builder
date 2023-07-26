@@ -11,18 +11,18 @@ from typing import List, Optional
 
 def argument_parse():
     parser = argparse.ArgumentParser(
-        description="Build emoji metadata with given local path"
+        description="주어진 경로로 이모지 생성을 위한 메타데이터를 작성합니다."
     )
-    parser.add_argument("path", type=str, help="The path for build")
-    parser.add_argument("-c", "--category", type=str, help="emoji category name")
+    parser.add_argument("path", type=str, help="이모지 파일 디렉토리")
+    parser.add_argument("-c", "--category", type=str, help="이모지 카테고리명 (선택)")
     parser.add_argument(
         "-o",
         "--output",
         type=str,
-        help="output file path, default to standard output if omitted",
+        help="json 출력 경로, 지정하지 않으면 화면 또는 표준 출력으로 내보냅니다",
     )
     parser.add_argument("--local", action='store_true',
-                        help="Make emojis local-only")
+                        help="이모지를 로컬 전용으로 지정합니다.")
 
     return parser.parse_args()
 
@@ -57,7 +57,7 @@ def main():
     try:
         files = [f for f in os.listdir(path) if f != "meta.json"]
     except FileNotFoundError:
-        print("Error: The path not found -", path)
+        print("오류: 경로를 찾을 수 없습니다 -", path)
         return
     
     # validate emojiname
@@ -67,8 +67,8 @@ def main():
     
     if len(filename_failed) > 0:
         for filename in filename_failed:
-            print("Error: Filename validation failed:", filename, file=stderr)
-        print("Error: All filename should be in ascii alphabets, numbers or underscore.", file=stderr)
+            print("오류: 파일명 검증 실패:", filename, file=stderr)
+        print("오류: 파일명은 영문자 대소문자, 숫자, 언더바(_)로 이루어져 있어야 합니다.", file=stderr)
         return
 
     # build meta
