@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-import json
 import os
+import json
 import argparse
+import re
+from sys import stderr
 from datetime import datetime
 from typing import List, Optional
 
@@ -26,8 +28,6 @@ def argument_parse():
 
 
 def build_meta(files: List[str], category: Optional[str], localonly: bool = False) -> dict:
-    # TODO: filename verification (/^[a-zA-Z0-9_]+?([a-zA-Z0-9\.]+)?$/)
-    # TODO: emojiname verification (/^[a-zA-Z0-9_]+$/)
     return {
         "generatedAt": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "emojis": [
@@ -59,7 +59,19 @@ def main():
     except FileNotFoundError:
         print("Error: The path not found -", path)
         return
+    
+    # validate emojiname
+    filename_rule = re.compile(r'^[a-zA-Z0-9_]+?([a-zA-Z0-9\.]+)?$')
+    
+    filename_failed = [f for f in files if filename_rule.match(f) is None]
+    
+    if len(filename_failed) > 0:
+        for filename in filename_failed:
+            print("Error: Filename validation failed:", filename, file=stderr)
+        print("Error: All filename should be in ascii alphabets, numbers or underscore.", file=stderr)
+        return
 
+    # build meta
     meta = build_meta(files, args.category, args.local)
     if args.output:
         with open(args.output, "w") as f:
